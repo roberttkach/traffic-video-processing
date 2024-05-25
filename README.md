@@ -32,6 +32,7 @@ The project relies on the following Python libraries:
 
 - OpenCV
 - PyTorch
+- TensorFlow
 - Keras
 - NumPy
 - JSON
