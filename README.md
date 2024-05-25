@@ -6,7 +6,7 @@ This project aims to track objects (specifically cars) in video footage and esti
 
 ### `general_concept.py`
 
-This file contains the main code for object detection, tracking, and speed estimation. It uses the YOLOv5 model for object detection and performs speed calculation based on the detected object's movement across frames. The script also loads and processes JSON files containing information about designated areas and zones in the video footage.
+This file contains the main code for object detection, tracking, and speed estimation. It uses the YOLOv8x model for object detection and performs speed calculation based on the detected object's movement across frames. The script also loads and processes JSON files containing information about designated areas and zones in the video footage.
 
 ### `marking.py`
 
