@@ -1,6 +1,7 @@
 import json
 import os
 import pathlib
+
 import cv2
 import numpy as np
 from tensorflow.keras.preprocessing import image
@@ -8,36 +9,20 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNormalization
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
-from tensorflow.keras.utils import to_categorical
-from keras.utils import to_categorical
-from sklearn.model_selection import train_test_split
-import numpy as np
-
-
 
 
 def getJson(video_path, directory):
-    """Функция для извлечения данных из JSON файла."""
     filename = pathlib.Path(video_path).stem
     json_file = os.path.join(directory, filename + '.json')
 
     if os.path.exists(json_file):
         with open(json_file, 'r') as f:
             data = json.load(f)
-            if 'areas' in data:
-                print('Areas:')
-                print(json.dumps(data['areas'], indent=4))
-            if 'zones' in data:
-                print('Zones:')
-                print(json.dumps(data['zones'], indent=4))
-        return json_file
+        return data
     else:
-        print(f'Файл {json_file} не найден')
-
-
+        print(f'File {json_file} not found')
 
 def create_model():
-    """Создание модели"""
     model = Sequential()
     model.add(Conv2D(32, (3, 3), activation='relu', input_shape=(128, 128, 3)))
     model.add(BatchNormalization())
@@ -63,31 +48,23 @@ def create_model():
     return model
 
 def compile_model(model):
-    """Компиляция модели"""
     opt = Adam(learning_rate=0.001, decay=1e-6)
     model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
     model.summary()
 
 def set_callbacks():
-    """Настройка callbacks"""
     early_stopping = EarlyStopping(monitor='val_loss', patience=3)
     checkpoint = ModelCheckpoint('best_model.h5', monitor='val_loss', save_best_only=True)
 
     return [early_stopping, checkpoint]
 
 def train_model(model, x_train, y_train, x_val, y_val):
-    """Обучение модели"""
     callbacks = set_callbacks()
     history = model.fit(x_train, y_train, validation_data=(x_val, y_val), epochs=10, callbacks=callbacks)
 
     return history
 
-def print_history(history):
-    """Вывод истории обучения в консоли"""
-    print("History of training:\n", history.history)
-
 def process_video(video_path, json_directory):
-    """Обработка видео"""
     json_data = getJson(video_path, json_directory)
     if json_data is None:
         return
@@ -95,9 +72,9 @@ def process_video(video_path, json_directory):
     cap = cv2.VideoCapture(video_path)
     frames = []
 
-    while(cap.isOpened()):
+    while cap.isOpened():
         ret, frame = cap.read()
-        if ret == False:
+        if not ret:
             break
         frames.append(frame)
 
@@ -124,7 +101,6 @@ def process_video(video_path, json_directory):
             else:
                 cv2.putText(frame, "Tracking failure detected", (100, 80), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 255), 2)
 
-        # Зоны
         for zone in zones:
             cv2.polylines(frame, [np.array(zone)], True, (0, 255, 0), 2)
 
@@ -140,8 +116,6 @@ def process_video(video_path, json_directory):
 
 model = create_model()
 compile_model(model)
-
-
 
 json_data = getJson(r"C:\Users\diner\Desktop\KRA-2-7-2023-08-23-evening.mp4", r"D:\DATA\markup\jsons")
 predictions = process_video(r"C:\Users\diner\Desktop\KRA-2-7-2023-08-23-evening.mp4")
